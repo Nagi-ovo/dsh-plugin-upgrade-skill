@@ -57,6 +57,11 @@ description: 检查或升级已安装的 DSH（DeepSeek Harness）插件，或�
 
 ## 模式 C · host-migrate（插件随 DSH 升级）
 
+0. 先跑 baseline：在仓库自身依赖状态（不 pin 目标、不设目标 env）运行机械套件
+   （build / typecheck / tests；属运行包脚本，先按安全边界展示将执行的命令并取得
+   确认），记录 pre-existing 失败为豁免清单（做法见
+   [references/rollup-0.1.2.md](references/rollup-0.1.2.md) R-06，后续走廊同理）。
+   迁移不得新增或恶化失败；pre-existing 失败按 baseline 豁免。
 1. 用精确 tag 确认 from/to；按 [references/README.md](references/README.md) 的
    `from → to` 元数据连接版本走廊，禁止按文件名字典序。
 2. 先读完整走廊并计算最终净状态。字段在中间版本删除、目标版又恢复时，不先删再加。
@@ -92,6 +97,8 @@ description: 检查或升级已安装的 DSH（DeepSeek Harness）插件，或�
 
 报告固定分为：
 
+- **pre-existing**（模式 C 且已跑 baseline 时；其余模式注明「未采集」）：来自
+  baseline 的失败清单（未触碰、不归因于本次迁移）；
 - **已完成**：版本、文件、卡片与验证；
 - **跳过**：未命中或不适用及依据；
 - **待确认/残留风险**：缺来源、未跑平台、生命周期脚本副作用；
@@ -106,7 +113,7 @@ description: 检查或升级已安装的 DSH（DeepSeek Harness）插件，或�
 | [references/pre-flight.md](references/pre-flight.md) | 七类触点自查与汇总模板 |
 | [references/v0.1.2-alpha.1.md](references/v0.1.2-alpha.1.md) | rc.2→alpha.1：14 张 curated 卡 |
 | [references/v0.1.2-alpha.2.md](references/v0.1.2-alpha.2.md) | alpha.1→alpha.2：6 张 curated 卡 |
-| [references/rollup-0.1.2.md](references/rollup-0.1.2.md) | 0.1.1 → 0.1.2 走廊（rollup）：跨 cohort 共存、未发布 cohort 安装、`RemoteResult` 错误流、分层验证清单；**基于 alpha.2，正式版需复核** |
+| [references/rollup-0.1.2.md](references/rollup-0.1.2.md) | 0.1.1 → 0.1.2 走廊（rollup）：跨 cohort 共存、未发布 cohort 安装、`RemoteResult` 错误流、迁移前 baseline 归因、boot race 有界重试、分层验证清单；**基于 alpha.2，正式版需复核** |
 | [migration planner](../../docs/migration-planner.md) | 只读扫描目标仓库、连接卡片走廊并输出候选迁移计划 |
 | [examples/legacy-plugin/](examples/legacy-plugin/) | 七类触点静态夹具（不得执行） |
 
