@@ -1,5 +1,7 @@
 # DSH Plugin Upgrade Skill
 
+**简体中文** | [English](README.en.md)
+
 **DeepSeek Harness 插件生态的 agent skill**，社区共建。提供版本无关的迁移指南、破坏性变更配方和真实迁移示例。
 
 [DSH（DeepSeek Harness）](https://github.com/deepseek-ai/deepseek-harness) 是"一切皆插件"的 agent harness。本仓库提供 DSH 插件升级的 agent skill——从检查更新、阅读 changelog，到迁移配置、源码适配、验证结果。

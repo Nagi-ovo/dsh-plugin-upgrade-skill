@@ -84,10 +84,13 @@ for (const name of skillNames) {
 }
 
 // Distribution docs must use commands supported by the current CLI surfaces.
-const readme = readFileSync(join(root, 'README.md'), 'utf8')
-if (/\bcodex plugin add\b/.test(readme)) fail('README.md 使用不存在的 codex plugin add')
-if (!/codex plugin marketplace add/.test(readme)) fail('README.md 缺少 Codex marketplace add 安装路径')
-if (/git config --global url\./.test(readme)) fail('README.md 不得建议全局重写 GitHub URL')
+// README.en.md mirrors README.md, so both are held to the same rules to prevent drift.
+for (const doc of ['README.md', 'README.en.md']) {
+  const text = readFileSync(join(root, doc), 'utf8')
+  if (/\bcodex plugin add\b/.test(text)) fail(`${doc} 使用不存在的 codex plugin add`)
+  if (!/codex plugin marketplace add/.test(text)) fail(`${doc} 缺少 Codex marketplace add 安装路径`)
+  if (/git config --global url\./.test(text)) fail(`${doc} 不得建议全局重写 GitHub URL`)
+}
 
 // The conventional local entry point must run both dependency-free validators.
 const rootPackage = readJson('package.json')
