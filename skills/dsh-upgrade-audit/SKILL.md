@@ -82,4 +82,4 @@ node <skill-dir>/scripts/materialize-npm.mjs <from> <to> tmp/<pair>
 
 ## 与 plugin-upgrade 的关系
 
-本 skill 产出**宿主版本间的兼容性证据**（报告 + 边界签名表）；[plugin-upgrade](../plugin-upgrade/) 消费这类证据（版本变更卡片）执行单个插件的迁移。审计发现可直接供给卡片「实战批注」；给 `plugin-upgrade` 补卡时引用本 skill 的报告目录而非凭记忆转述。
+本 skill 产出**宿主版本间的兼容性证据**（报告 + 边界签名表）；[plugin-upgrade](https://github.com/oh-my-dsh/dsh-plugin-upgrade-skill/blob/main/skills/plugin-upgrade/) 消费这类证据（版本变更卡片）执行单个插件的迁移。审计发现可直接供给卡片「实战批注」；给 `plugin-upgrade` 补卡时引用本 skill 的报告目录而非凭记忆转述。

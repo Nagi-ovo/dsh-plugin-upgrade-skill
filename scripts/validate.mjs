@@ -89,13 +89,16 @@ for (const required of [
 }
 if (/\bBC-\d{2}\b|六类触点/.test(contributingText)) fail(contributingFile, 'contains retired card schema')
 
-// Standalone skills must not reach into sibling skill directories.
-for (const name of ['plugin-test', 'plugin-write']) {
-  const skillRoot = join(skillsRoot, name)
+// Every skill is self-contained: relative links stay inside skills/<name>/ so installers
+// that copy only that directory (npx skills, gemini skills install, Cursor) get a working skill.
+// plugin-test and plugin-write additionally must not depend on plugin-upgrade (#19).
+const standalone = new Set(['plugin-test', 'plugin-write'])
+for (const entry of skillEntries) {
+  const skillRoot = join(skillsRoot, entry.name)
   const files = (await walk(skillRoot)).filter((file) => file.endsWith('.md'))
   for (const file of files) {
     const text = await readFile(file, 'utf8')
-    if (/\bplugin-upgrade\b/.test(text)) fail(file, 'standalone skill must not depend on plugin-upgrade')
+    if (standalone.has(entry.name) && /\bplugin-upgrade\b/.test(text)) fail(file, 'standalone skill must not depend on plugin-upgrade')
     for (const match of text.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
       let target = match[1].trim().replace(/^<|>$/g, '')
       if (/^(https?:|mailto:|#)/.test(target)) continue
@@ -103,7 +106,7 @@ for (const name of ['plugin-test', 'plugin-write']) {
       if (!target) continue
       const resolved = resolve(dirname(file), target)
       if (relative(skillRoot, resolved).startsWith('..')) {
-        fail(file, `standalone skill link leaves its directory: ${match[1]}`)
+        fail(file, `link leaves the skill directory: ${match[1]}`)
       }
     }
   }
@@ -247,7 +250,7 @@ try {
 }
 
 // The planner must stay read-only, redact source lines, resolve card corridors, and report gaps.
-const plannerCheckFile = join(root, 'scripts', 'plan-migration.check.mjs')
+const plannerCheckFile = join(root, 'skills', 'plugin-upgrade', 'scripts', 'plan-migration.check.mjs')
 try {
   const { runMigrationPlannerChecks } = await import(pathToFileURL(plannerCheckFile).href)
   await runMigrationPlannerChecks()

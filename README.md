@@ -17,7 +17,7 @@
 
 ### 使用 skills CLI（推荐）
 
-最快路径——由 [skills CLI](https://github.com/justjavac/skills) 安装到它当前支持的 agent：
+最快路径——由 [skills CLI](https://github.com/vercel-labs/skills) 安装到它当前支持的 agent：
 
 ```bash
 npx skills add oh-my-dsh/dsh-plugin-upgrade-skill
