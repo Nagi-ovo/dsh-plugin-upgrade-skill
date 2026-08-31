@@ -1,6 +1,6 @@
 # Read-only migration planner
 
-`plan-migration.mjs` turns the existing pre-flight patterns and version-card metadata into a deterministic first-pass plan. It **never writes the target repository** and has no output-file option.
+`plan-migration.mjs` turns the existing pre-flight patterns and version-card metadata into a deterministic first-pass plan. It never writes the target repository and has no output-file option.
 
 It lives inside `skills/plugin-upgrade/` so that installers that copy only the skill directory (`npx skills add`, `gemini skills install --path skills`, Cursor) ship it together with the cards it reads.
 

@@ -1,8 +1,27 @@
 # Rollup · 0.1.1 → 0.1.2 走廊
 
-> **状态**: 基于 `dsh-v0.1.2-alpha.2`。**0.1.2 正式版尚未发布**——npm dist-tags 实测 `latest`/`next` = `0.1.1-rc.2`，`alpha` = `0.1.2-alpha.2`。正式发版后本文件需按 final tag 复核转正（[issue #1](https://github.com/oh-my-dsh/dsh-plugin-upgrade-skill/issues/1) 的原始 caveat）。
-> **定位**: 本文件不重复版本卡片。逐条变更以卡片为准，这里只写走廊层的增量——跨 cohort 共存、未发布 cohort 安装、CI/发布连带、迁移前盘点与 baseline 归因、boot race 处置、分层验证清单。
+> 状态: 基于 `dsh-v0.1.2-alpha.2`。0.1.2 正式版尚未发布——npm dist-tags 实测 `latest`/`next` = `0.1.1-rc.2`，`alpha` = `0.1.2-alpha.2`。正式发版后本文件需按 final tag 复核转正（[issue #1](https://github.com/oh-my-dsh/dsh-plugin-upgrade-skill/issues/1) 的原始 caveat）。
+> 定位: 本文件不重复版本卡片。逐条变更以卡片为准，这里只写走廊层的增量——跨 cohort 共存、未发布 cohort 安装、CI/发布连带、迁移前盘点与 baseline 归因、boot race 处置、分层验证清单。
 > 卡片格式见 [README.md](README.md)。触点编号对应 [pre-flight 清单](pre-flight.md)。
+
+## 目录
+
+- 怎么用这份 rollup
+- 卡片索引（按触点）
+- Remote 调用的错误流
+- 走廊层增量
+  - R-01 · 目标 cohort 的依赖包未完整发布 npm
+  - R-02 · 跨 cohort 共存（旧宿主升不到未发布 cohort）
+  - R-03 · 第三方预构建插件搭不上你的 shim
+  - R-04 · CI 与发布管线连带
+  - R-05 · 迁移前盘点被删包的下游
+  - R-06 · 迁移前 baseline 归因——先立豁免清单，再动迁移
+  - R-07 · 启动服务竞态：有界重试，不延迟、不加 inject wait
+  - R-10 · base-only profile 挂 shipped preset 的新前置（Host scope 服务与同名遮蔽）
+  - R-11 · 0.1.2 类型面导出漂移（未入 release notes 的 ledger）
+- 分层验证清单
+- 回退
+- 待确认
 
 ## 怎么用这份 rollup
 
@@ -26,7 +45,7 @@
 | #6/#7 Web 启动与验收 | [DSH-0.1.2-A1-19](v0.1.2-alpha.1.md)（认证 URL、启动图资源发现与真实挂载） |
 | 特殊面 | 权限 [DSH-0.1.2-A1-07](v0.1.2-alpha.1.md)；隐私 [DSH-0.1.2-A1-12](v0.1.2-alpha.1.md) / [DSH-0.1.2-A1-14](v0.1.2-alpha.1.md) / [DSH-0.1.2-A1-23](v0.1.2-alpha.1.md)；打包 [DSH-0.1.2-A1-24](v0.1.2-alpha.1.md) / [DSH-0.1.2-A2-03](v0.1.2-alpha.2.md) |
 
-> **跨版本回滚型变更先读完整走廊再动手**：字段或语义在中间版本删除、后续版本又恢复
+> 跨版本回滚型变更先读完整走廊再动手：字段或语义在中间版本删除、后续版本又恢复
 > （典型如 `ignorable` 的 [DSH-0.1.2-A1-02](v0.1.2-alpha.1.md) → [DSH-0.1.2-A2-01](v0.1.2-alpha.2.md) 一删一复）。
 > 迁移时必须先折叠走廊的净状态再修改源码——不要在 alpha.1 删一次、到 alpha.2 又加回来；
 > 若最终目标已恢复该语义，旧版适配里的防御代码应当删除而不是保留。
@@ -81,11 +100,11 @@ return result.value
   ```
 
   manifest 里 range 写 `^0.1.2-alpha.2`，将来正式发布删掉 overrides 段即回到 registry 解析。
-- **注意（待确认）**: 以下 pnpm 版本钉点来自**单一实战报告，尚未在其他仓库复现验证**——报告称 `11.9.0` 对 file: tarball 的传递依赖在有第三方 peer 时会绕过 overrides 去 registry 找不存在的版本，钉 `packageManager: pnpm@11.24.0` 才解析正确。落地前先在目标仓库做最小复现确认，验证通过后回填结果并把本条目转正（与本文件末尾「待确认」小节同步更新）。
+- **注意（待确认）**: 以下 pnpm 版本钉点来自单一实战报告，尚未在其他仓库复现验证——报告称 `11.9.0` 对 file: tarball 的传递依赖在有第三方 peer 时会绕过 overrides 去 registry 找不存在的版本，钉 `packageManager: pnpm@11.24.0` 才解析正确。落地前先在目标仓库做最小复现确认，验证通过后回填结果并把本条目转正（与本文件末尾「待确认」小节同步更新）。
 - **npm 实况**（2026-08-31）: `@deepseek-ai/dsh-*` 各包在 npm 只有 `0.1.1-rc.1`、`0.1.1-rc.2`、`0.1.2-alpha.2`，alpha.1 从未发布。rc.2 → alpha.1 只能从 GitHub tag 构建；目标 alpha.2 先查 registry。
 - **只验证不安装**（[dsh-TUI #622](https://github.com/ccch1mneyyy/dsh-TUI/pull/622)）: 安装基线留 rc.2，CI 检出上游 tag，用其 `tsconfig.base.json` 的 `paths` 映射到源码跑 `tsc --noEmit`。证明类型面，运行时另做；[dsh-TUI #647](https://github.com/ccch1mneyyy/dsh-TUI/pull/647) 在 alpha.2 上 npm 后仍保留这条车道。
 - **验证**: `pnpm list --depth 0 | grep @deepseek-ai` 全部指向目标版本，无混合。
-- **来源**: [#5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120) 第 1 条。**未在官方 release notes 覆盖范围内**，属社区实践。
+- **来源**: [#5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120) 第 1 条。未在官方 release notes 覆盖范围内，属社区实践。
 
 ### R-02 · 跨 cohort 共存（旧宿主升不到未发布 cohort）
 
@@ -103,9 +122,9 @@ return result.value
   }
   ```
 
-  只转**共享**的值表面——cohort 独有导出绝不能 re-export，否则新值导入会在 build 时报 missing-export 而不是静默坏掉。类型导入照旧（编译期擦除）。
+  只转共享的值表面——cohort 独有导出绝不能 re-export，否则新值导入会在 build 时报 missing-export 而不是静默坏掉。类型导入照旧（编译期擦除）。
 
-  注入服务从硬 inject 清单拿掉，在使用点探测；**cordis `remote` 代理对未注入属性是 throw 而非返回 undefined**，所以必须 try/catch 再回落：
+  注入服务从硬 inject 清单拿掉，在使用点探测；cordis `remote` 代理对未注入属性是 throw 而非返回 undefined，所以必须 try/catch 再回落：
 
   ```typescript
   let presets
@@ -122,7 +141,7 @@ return result.value
 
 - **类型**: breaking
 - **症状**: 预构建 npm 内容进入 profile，硬 require 旧说明符，在新宿主同样 `missed the module table`。你不构建它，build 预设的 shim 帮不到。
-- **配方**: 仓库自持 `pnpm patch`（`patchedDependencies`），把那一条 require 改写成同样的双 cohort 探测。**别忘了 profile 的父层链接**——link 脚本可能把链接重指回未打补丁实例，需指到 `patch_hash=…` 实例。
+- **配方**: 仓库自持 `pnpm patch`（`patchedDependencies`），把那一条 require 改写成同样的双 cohort 探测。别忘了 profile 的父层链接——link 脚本可能把链接重指回未打补丁实例，需指到 `patch_hash=…` 实例。
 - **验证**: 打补丁后冷启动，确认该插件的 UI 贡献点可见可用。
 - **来源**: [#5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120) 第 7 条。
 
@@ -155,15 +174,15 @@ return result.value
   发生过：干净树 + 红套件被当回归上报；脏树 + 绿门禁掩盖运行时断链（本文件分层验证
   清单针对后者，本条针对前者）。
 - **配方**:
-  1. 在**任何迁移写入之前**，于仓库**自身**依赖状态（不 pin 目标 cohort、不设目标
+  1. 在任何迁移写入之前，于仓库自身依赖状态（不 pin 目标 cohort、不设目标
      env 变量）跑一次机械套件（build / typecheck / tests），记录失败清单与失败指纹
      ——此即 baseline。同时固定环境证据：`HEAD`、工作树状态、lockfile 哈希、解析后
      的依赖与工具版本、完整命令与退出码（时间戳只是辅助——迁移可能先改完才首次
      提交，时间戳证不了先后）。
-  2. baseline 失败进入**不修豁免清单**：迁移过程绝不顺手修复预存失败——那是另一个
+  2. baseline 失败进入不修豁免清单：迁移过程绝不顺手修复预存失败——那是另一个
      PR 的事。
   3. 迁移后对比失败指纹（按命令、测试标识、规范化路径与诊断消息聚合；裸错误行只是
-     近似——移行与堆栈变化会引入噪声）：只有相对 baseline **新增**的失败计入迁移
+     近似——移行与堆栈变化会引入噪声）：只有相对 baseline 新增的失败计入迁移
      失败；测试清单不得无依据减少（删测试让集合缩小不算变绿）。
   4. 修复循环（若进入）：每轮输入 = 差异报告 + 新增失败（不是全量日志）+ 历史修复
      报告 + baseline 豁免清单；最小变更，新增失败清零即停——预存失败按定义出局。
@@ -186,8 +205,8 @@ return result.value
 - **症状**: 插件启动即轮询依赖服务，与宿主服务就绪窗口竞态；冷启动出现
   `service-unavailable` 循环。分层验证清单第 4 层要求观察此症状，但未给处置配方——
   本条补齐。
-- **配方**: 仅限**启动期轮询预期终将就绪的依赖服务**、且被轮询操作只读幂等的场景：
-  对 `code: 'service-unavailable'` 做**有界重试**——约 5 次、2 秒退避，总次数与
+- **配方**: 仅限启动期轮询预期终将就绪的依赖服务、且被轮询操作只读幂等的场景：
+  对 `code: 'service-unavailable'` 做有界重试——约 5 次、2 秒退避，总次数与
   总时长有上限，重试参数可注入覆盖（便于测试）；耗尽后明确失败并上报，不无限等待。
   重试前提同 SKILL.md 安全边界：错误可重试、操作幂等、策略允许。若服务在该 cohort
   上根本不存在（永久缺失而非未就绪），走 R-02 的运行时探测回落，不是重试。

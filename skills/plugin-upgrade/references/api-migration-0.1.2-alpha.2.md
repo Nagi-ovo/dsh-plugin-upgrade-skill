@@ -1,16 +1,62 @@
 # 接口迁移实战 · 0.1.1-rc.2 → 0.1.2-alpha.2
 
-> **定位**：面向插件作者的接口 ledger。重点回答三件事：哪些接口变了、旧写法会怎样
+> 定位：面向插件作者的接口 ledger。重点回答三件事：哪些接口变了、旧写法会怎样
 > 失败、目标版本的 best practice 是什么。安装流程、产品功能清单和 UI 变化不在本文展开。
 >
-> **精确走廊**：`dsh-v0.1.1-rc.2`
+> 精确走廊：`dsh-v0.1.1-rc.2`
 > (`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`) → `dsh-v0.1.2-alpha.1`
 > (`cd5ef8148158c3a752a658978873241fdf8e2bbc`) → `dsh-v0.1.2-alpha.2`
 > (`0a53fb55bea101816fa226bb964ae2bed71c343b`)。
 >
-> **版本状态**：截至 2026-08-30，上游 `0.1.2` 系列的最新 tag 是
+> 版本状态：截至 2026-08-30，上游 `0.1.2` 系列的最新 tag 是
 > `dsh-v0.1.2-alpha.2`，尚无 `dsh-v0.1.2` final tag。正式版发布后必须重新核对
 > package exports、声明类型、实现与测试，不能把本文直接标成 final 兼容结论。
+
+## 目录
+
+- 一页结论
+- API-01 · APIProxy 迁到实际 `ctx.remote` projection
+  - 最小正确写法
+  - 常用 consumer ledger
+  - Best practice
+  - 验证
+- API-02 · `RemoteResult` 版本边界与 alpha.2 `RemoteError`
+  - 先把版本归属说清楚
+  - Consumer 最新写法
+  - Remote owner 最新写法
+  - Best practice
+  - 验证
+- API-03 · Settings helper 移除与 provider-owned lifecycle
+  - 升级前
+  - 升级后
+  - Best practice
+  - 验证
+- API-04 · 固定 Host facts 统一到 `ctx.remote.$host`
+  - alpha.2 写法
+  - Best practice
+  - 验证
+- API-05 · `SessionEvent.ignorable` 恢复了，但第三方写入面还没补齐
+  - 危险旧写法
+  - Best practice
+  - 验证
+- API-06 · Headless 的 argv 与进程输出契约
+  - 正确调用与解释
+  - Best practice
+  - 最小 stub 矩阵
+- API-07 · Package export 不等于发布物存在
+  - Best practice
+  - 验证
+- API-08 · `cordis.patch.yml` 是 composition，不是源码 patch
+  - Best practice
+  - 验证
+- API-09 · Plugin inventory 新增可选 `agentPresets`
+  - Best practice
+  - 验证
+- CFG-01 · Code Mode 精确迁到 PTC mode
+  - 精确 ledger
+- Skill 输出这类迁移报告时应使用的结构
+  - <接口名>
+- 最小验证梯度
 
 ## 一页结论
 
@@ -34,7 +80,7 @@
 - **适用对象**：直接消费旧 APIProxy 的 Web Client、Host 集成或启动包装层。
 - **会怎么炸**：旧 APIProxy package/service 不再存在；照搬架构说明里的 wire route 字符串
   容易写出目标 tag 中不存在的属性，例如 `ctx.remote.sessionTitle.rename`。
-- **核心规则**：插件调用的是目标 tag 生成的 **consumer projection**，不是自己拼
+- **核心规则**：插件调用的是目标 tag 生成的 consumer projection，不是自己拼
   `namespace/method` 字符串。alpha.2 的 API Remotes assembly 来自
   `@deepseek-ai/dsh-api-remotes/client`。
 
@@ -68,7 +114,7 @@ consumer 测试。
 | `connection.api.sessions.rename({ sessionId, title })` | `ctx.remote.session.rename({ sessionId, title })` | 不存在 `ctx.remote.sessionTitle.rename` |
 | `ctx.remote.commands.list(sessionId)` | 路径不变 | rc.2 已是 Remote；consumer 传 Session id，Host scope 解析 Agent |
 | `ctx.remote.commands.execute(sessionId, line, images)` | 路径不变 | rc.2 已是 Remote；`images` 必传，无图传 `[]` |
-| `connection.api.llm.providers({})` | `ctx.remote.llm.listProviders()` **和** `.listConfigurableProviders()` | 两个调用各自返回 `RemoteResult`，按 provider id 组合 live 与 configurable directory |
+| `connection.api.llm.providers({})` | `ctx.remote.llm.listProviders()` 和 `.listConfigurableProviders()` | 两个调用各自返回 `RemoteResult`，按 provider id 组合 live 与 configurable directory |
 | `llm.discoverModels` | `ctx.remote.llm.discoverModels(settingsNs, request)` | 不写入 settings/credentials；返回候选模型 |
 | `llm.models` | `ctx.remote.session.modelCatalog()` | 从 LLM 域移到 Session 域 |
 | `credentials.describe` | `ctx.remote.credentials.describe(refs)` | 返回描述信息，不返回 secret 值 |
@@ -130,7 +176,7 @@ consumer 测试。
 
 ### 先把版本归属说清楚
 
-`RemoteResult<T>` **在 alpha.1 已经存在**：生成的 unary Remote 解析为
+`RemoteResult<T>` 在 alpha.1 已经存在：生成的 unary Remote 解析为
 `{ ok: true, value } | { ok: false, error }`。alpha.2 的 breaking change 是统一
 failure vocabulary：`RemoteFailure` 变成按 code 收窄的 `RemoteError` union，code 改为
 `<domain>/<reason>`，并删除旧 wrapper/stream error surface。不要把“开始处理 `result.ok`”
@@ -312,7 +358,7 @@ export function apply(ctx: Context, config: Config): void {
   [alpha.2 Settings 入口](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.2-alpha.2/packages/settings/settings/src/index.ts) ·
   [alpha.2 官方 Settings README](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.2-alpha.2/packages/settings/settings/README.md)
 
-> **兼容层不等于官方接口**：DSH Desktop 当前可能通过本地 compatibility patch 暂时恢复
+> 兼容层不等于官方接口：DSH Desktop 当前可能通过本地 compatibility patch 暂时恢复
 > 这些 deprecated helper。插件在 Desktop checkout 内 typecheck/运行通过，不能证明它兼容
 > 未打补丁的官方 alpha.2；迁移与发布验证必须再使用纯官方 package artifact。
 
@@ -370,7 +416,7 @@ export function apply(ctx: Context): void {
   `Session.append()` 的参数仍只有 `type`、`data`，以及仅 surface event 可用的
   `SurfaceIntent`；它不会把 `ignorable` 写进事件。仓库外自定义 type 因而可能 live append
   正常、持久化正常，却在下次 cold load 时抛 `SessionFormatUnsupportedError`，整条 Session
-  拒绝恢复。这是 **silent write / loud read**，不能靠一次 live smoke 发现。
+  拒绝恢复。这是 silent write / loud read，不能靠一次 live smoke 发现。
 
 ### 危险旧写法
 
@@ -392,7 +438,7 @@ JSONL 绕过去。
 
 ### Best practice
 
-1. 仓库外插件在 alpha.2 **不要**用自定义 `SessionEventMap` + `Session.append()` 持久化状态；
+1. 仓库外插件在 alpha.2 不要用自定义 `SessionEventMap` + `Session.append()` 持久化状态；
    使用插件自有 sidecar/store，并按 Session id 关联。
 2. 能复用已有已知 event 时只复用真实相同的语义；不要把插件状态伪装成 model-visible 或
    core event。

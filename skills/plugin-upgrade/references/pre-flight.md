@@ -8,6 +8,21 @@
 [pre-flight-patterns.json](pre-flight-patterns.json)。下列 `rg` 仅为示例；Agent 应优先
 使用当前环境提供的内容搜索工具。
 
+## 目录
+
+- 0. 先做配置与依赖盘点
+- 1. 构造版本走廊
+- #1 源码 patch / monkey patch
+- #2 内部事件名与持久事件
+- #3 内部服务探测 / Remote
+- #4 直接读写宿主目录
+- #5 内部 UI / 命令 / 工具注册
+- #6 自建 HTTP / WS / RPC / DOM / CSS 通道
+- #7 子进程 / stdout / stderr 解析
+- 特殊面
+- 汇总模板
+- 触点体检（<插件>，<from> → <to>）
+
 ## 0. 先做配置与依赖盘点
 
 扫描全部受跟踪的源码、测试、脚本、CI 和根配置，排除生成物、vendor 与

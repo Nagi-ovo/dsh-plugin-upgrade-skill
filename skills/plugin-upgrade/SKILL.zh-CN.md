@@ -1,4 +1,4 @@
-[English](SKILL.md) | **简体中文**
+[English](SKILL.md) | 简体中文
 
 # plugin-upgrade
 
@@ -31,7 +31,7 @@
 4. 核对目标版本来源、tag/包名、兼容范围、release notes、安装脚本与已知 breaking changes。
    不读取、打印或提交 token、`.npmrc` 内容、凭据或会话日志。
 5. 记录回滚基线：当前 HEAD/包版本、lockfile 与将改配置的 hash/路径；说明失败后如何恢复
-   **本次明确路径**，不要承诺回滚第三方安装脚本的任意副作用。
+   本次明确路径，不要承诺回滚第三方安装脚本的任意副作用。
 
 ## 模式 A · inspect（只读）
 
@@ -45,7 +45,7 @@
    npm/pnpm/bun，也不为匹配 GitHub owner 而改写 registry 包名。
 2. 生成变更计划：精确目标版本、将执行的命令、会改的文件、可能执行的生命周期脚本、
    配置迁移和回滚步骤。
-3. **任何写入或安装前取得用户明确确认**；即使没有 breaking change 也一样。
+3. 任何写入或安装前取得用户明确确认；即使没有 breaking change 也一样。
 4. 在独立 branch/worktree 中做最小修改；配置用路径级 patch，保留未知字段。Git 来源先
    fetch/比较明确 tag 或 commit，不对脏工作区直接 `git pull`。
 5. 安装依赖成功不等于 DSH 已启用插件；核对目标 profile 的 composition 确实解析到目标包，
@@ -110,7 +110,7 @@
 | [references/pre-flight.md](references/pre-flight.md) | 七类触点自查与汇总模板 |
 | [references/v0.1.2-alpha.1.md](references/v0.1.2-alpha.1.md) | rc.2→alpha.1 curated 卡 |
 | [references/v0.1.2-alpha.2.md](references/v0.1.2-alpha.2.md) | alpha.1→alpha.2 curated 卡 |
-| [references/rollup-0.1.2.md](references/rollup-0.1.2.md) | 0.1.1 → 0.1.2 走廊（rollup）：跨 cohort 共存、未发布 cohort 安装、`RemoteResult` 错误流、迁移前 baseline 归因、boot race 有界重试、base-only preset 前置、类型面导出漂移、分层验证清单；**基于 alpha.2，正式版需复核** |
+| [references/rollup-0.1.2.md](references/rollup-0.1.2.md) | 0.1.1 → 0.1.2 走廊（rollup）：跨 cohort 共存、未发布 cohort 安装、`RemoteResult` 错误流、迁移前 baseline 归因、boot race 有界重试、base-only preset 前置、类型面导出漂移、分层验证清单；基于 alpha.2，正式版需复核 |
 | [scripts/README.md](scripts/README.md) | 只读 migration planner：扫描目标仓库、连接卡片走廊并输出候选迁移计划 |
 | [examples/legacy-plugin/](examples/legacy-plugin/) | 七类触点静态夹具（不得执行） |
 

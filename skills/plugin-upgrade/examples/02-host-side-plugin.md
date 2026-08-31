@@ -3,7 +3,7 @@
 **场景**：0.1.1 插件在 Host 平面注入 `apiProxy`，用于读取模型提供方；升级后入口永久
 `pending (waiting for service: apiProxy)`。
 
-**影响触点**：#3 服务探测　**复杂度**：⭐⭐
+**影响触点**：#3 服务探测　复杂度：⭐⭐
 
 ## 为什么不能改成 `ctx.remote`
 

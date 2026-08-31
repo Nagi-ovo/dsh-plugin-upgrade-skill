@@ -1,6 +1,6 @@
 # 示例 06：六个真实插件的批量迁移实录（0.1.1-rc.1 → 0.1.2-alpha.1）
 
-**简体中文** | [English](06-real-world-batch-migration.en.md)
+简体中文 | [English](06-real-world-batch-migration.en.md)
 
 **场景**: 6 个已发布的 Web UI 插件（像素宠物 / 进度条 / 输入历史 / 小游戏合集 / 粘贴输入 / 文件追踪）从 `dsh-v0.1.1-rc.1` 批量迁移到 `dsh-v0.1.2-alpha.1`。三种典型形态都覆盖到了：读快照 + 注册 slot 的重灾型、自包含 DOM 的零成本型、仅需清理声明的微小型。
 
@@ -12,7 +12,7 @@
 
 **素材来源**: 社区迁移实践（2026-08-28 完成迁移，实机 boot 验证 + 单测回归）——[deepseek-harness discussion #5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120#discussioncomment-18208001)，六个插件仓库见文末。
 
-> **走廊覆盖说明**: 现有走廊卡片覆盖 `dsh-v0.1.1-rc.2 → dsh-v0.1.2-alpha.1`（from/to 见 [v0.1.2-alpha.1.md](../references/v0.1.2-alpha.1.md)），本示例起点为 `0.1.1-rc.1`——rc.1 → rc.2 段尚无卡片。文中 client-runtime 移除、`ctx.slots.inject`、`views.get('chat')?.legacy` 等技术声明在该段为本示例一手来源，待补卡；主题最接近的现有卡片为 **DSH-0.1.2-A1-03 · 会话视图工程大幅拆分**。
+> 走廊覆盖说明: 现有走廊卡片覆盖 `dsh-v0.1.1-rc.2 → dsh-v0.1.2-alpha.1`（from/to 见 [v0.1.2-alpha.1.md](../references/v0.1.2-alpha.1.md)），本示例起点为 `0.1.1-rc.1`——rc.1 → rc.2 段尚无卡片。文中 client-runtime 移除、`ctx.slots.inject`、`views.get('chat')?.legacy` 等技术声明在该段为本示例一手来源，待补卡；主题最接近的现有卡片为 DSH-0.1.2-A1-03 · 会话视图工程大幅拆分。
 
 ---
 
@@ -23,8 +23,8 @@
 | dsh-ui-whale v0.3.4→v0.3.5 | 读快照 + slot | 中 | 8 文件 +141/−99：类型导入、`legacy` 投影、slot 注册 |
 | dsh-ui-progress v0.9.3→v0.9.4 | 读快照 + slot | 中 | 同上 + 回合结束判定改走新时间线 |
 | dsh-input-history v0.1.3→v0.1.4 | 读快照 | 中 | 快照字段迁 `legacy` |
-| dsh-minigames v0.3.5→v0.3.7 | 自包含 body portal | **≈0** | 仅重跑 203 个单测 + 实机验证 |
-| dsh-paste-input v0.1.5→v0.1.6 | vanilla lib（无 src） | **小** | 清理 `dsh.client.inject` 里已删除的 `dsh-client-runtime` 声明 |
+| dsh-minigames v0.3.5→v0.3.7 | 自包含 body portal | ≈0 | 仅重跑 203 个单测 + 实机验证 |
+| dsh-paste-input v0.1.5→v0.1.6 | vanilla lib（无 src） | 小 | 清理 `dsh.client.inject` 里已删除的 `dsh-client-runtime` 声明 |
 | dsh-file-trace | 直接基于 0.1.2 新写 | — | 可作 0.1.2 新 API 正面样例 |
 
 **先判断插件类型再动手**：自包含 DOM 插件基本零成本，别照着重灾型流程走冤枉路。
@@ -113,10 +113,10 @@ const { nodes, partial, runningCalls } = chat?.legacy ?? EMPTY_PROJECTION
 
 1. **环境**：0.1.2-alpha.1 不在 npm（latest 是 0.1.1-rc.2），需源码 checkout + `pnpm install && pnpm run build`；`~/.dsh/source/current` junction 指向源码 checkout，插件 devDeps 统一 link 过去。动手前备份 `~/.dsh`。
 2. **全局替换类型导入**：`dsh-client-runtime/client` → `@deepseek-ai/cordis`；删 `dsh.client.inject` 与 devDependencies 里的旧声明（漏删启动直接报服务缺失）。
-3. **快照读取改 views**：旧平铺字段全部经 `views.get('chat')?.legacy` 投影读——**先全量迁 legacy 保证能跑**，稳定后再逐字段迁 views/timeline。
+3. **快照读取改 views**：旧平铺字段全部经 `views.get('chat')?.legacy` 投影读——先全量迁 legacy 保证能跑，稳定后再逐字段迁 views/timeline。
 4. **生命周期拆分**：`running` 等改走 `useSession` 座；组件 props 用 `useSession` + `useConversation` 双座。
-5. **slot 注册改 `ctx.slots.inject(name, () => ctx.slots.register(...))`**；`ctx.slots` 类型需引入 `@deepseek-ai/dsh-client-ui-renderer/client`。
-6. **`pnpm run clean && pnpm run build && pnpm run typecheck && pnpm run test`**——必须 clean，见常见错误 1。
+5. slot 注册改 `ctx.slots.inject(name, () => ctx.slots.register(...))`；`ctx.slots` 类型需引入 `@deepseek-ai/dsh-client-ui-renderer/client`。
+6. `pnpm run clean && pnpm run build && pnpm run typecheck && pnpm run test`——必须 clean，见常见错误 1。
 7. **实机验证**：`dsh --profile web` + 浏览器硬刷新；host 半段有改动必须重启 dsh（client 硬刷新即可）。通过后在 README 声明兼容矩阵（旧行保留、标注对应 DSH 版本）并发新 tag。
 
 ---
@@ -173,7 +173,7 @@ pnpm run clean && pnpm run build && pnpm run typecheck && pnpm run test
 
 ### 错误 6: 改完代码刷新页面没变化 / host 行为像旧版
 
-**原因**: client 半段硬刷新即生效，**host 半段必须重启 dsh**。
+**原因**: client 半段硬刷新即生效，host 半段必须重启 dsh。
 
 **解决**: 判断改动落点：进了 `lib/index.js`（host）→ 重启；只进 `lib/client.js` → 硬刷新。
 

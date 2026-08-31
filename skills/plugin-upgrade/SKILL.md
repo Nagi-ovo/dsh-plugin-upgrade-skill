@@ -3,7 +3,7 @@ name: plugin-upgrade
 description: Inspect or upgrade installed DSH (DeepSeek Harness) plugins, or adapt plugin source to a newer DSH host version. Inspection stays read-only; show a plan and obtain confirmation before any configuration, dependency, or source write.
 ---
 
-**English** | [简体中文](SKILL.zh-CN.md)
+English | [简体中文](SKILL.zh-CN.md)
 
 # plugin-upgrade
 
@@ -41,7 +41,7 @@ Report: current/available versions, source, compatibility range, breaking change
 
 1. Choose the single update mechanism that matches the resolved package identity and installation track; when a lockfile exists, use only its package manager — do not mix npm/pnpm/bun, and do not rewrite a registry package name to match a GitHub owner.
 2. Produce a change plan: exact target version, commands to run, files that will change, lifecycle scripts that may run, configuration migration, and rollback steps.
-3. **Obtain explicit user confirmation before any write or install**, even when no breaking change is known.
+3. Obtain explicit user confirmation before any write or install, even when no breaking change is known.
 4. Make minimal changes in a dedicated branch/worktree; patch configuration by path and preserve unknown fields. For Git sources, fetch and compare an explicit tag or commit first; never `git pull` a dirty worktree.
 5. Successful dependency installation does not mean DSH has enabled the plugin; verify the target profile's composition actually resolves to the target package, remove old source lines owned by this upgrade if any exist, and confirm the runtime entry is active.
 6. Run "Validation and reporting"; on failure, restore only the paths owned by this task and report residual side effects.
@@ -77,7 +77,7 @@ Validate at least the applicable layers:
 
 Structure the report as:
 
-- **pre-existing** (Mode C with the baseline run; other modes note "not collected"): the list of failures from the baseline (untouched, not attributed to this migration);
+- pre-existing (Mode C with the baseline run; other modes note "not collected"): the list of failures from the baseline (untouched, not attributed to this migration);
 - **Completed**: versions, files, cards, and validation;
 - **Skipped**: non-hits or inapplicable items with evidence;
 - **Pending/residual risk**: missing sources, untested platforms, lifecycle-script side effects;
@@ -92,7 +92,7 @@ Structure the report as:
 | [references/pre-flight.md](references/pre-flight.md) | Seven-class touchpoint self-check and summary template |
 | [references/v0.1.2-alpha.1.md](references/v0.1.2-alpha.1.md) | rc.2→alpha.1 curated cards |
 | [references/v0.1.2-alpha.2.md](references/v0.1.2-alpha.2.md) | alpha.1→alpha.2 curated cards |
-| [references/rollup-0.1.2.md](references/rollup-0.1.2.md) | 0.1.1 → 0.1.2 corridor (rollup): cross-cohort coexistence, unpublished-cohort installation, `RemoteResult` error flow, pre-migration baseline attribution, bounded retry for boot race, base-only preset precondition, type-surface export drift, and the layered validation checklist; **based on alpha.2 and subject to final-release review** |
+| [references/rollup-0.1.2.md](references/rollup-0.1.2.md) | 0.1.1 → 0.1.2 corridor (rollup): cross-cohort coexistence, unpublished-cohort installation, `RemoteResult` error flow, pre-migration baseline attribution, bounded retry for boot race, base-only preset precondition, type-surface export drift, and the layered validation checklist; based on alpha.2 and subject to final-release review |
 | [scripts/README.md](scripts/README.md) | Read-only migration planner: scans the target repository, connects the card corridor, and outputs a candidate migration plan |
 | [examples/legacy-plugin/](examples/legacy-plugin/) | Static fixture for the seven touchpoint classes (never execute) |
 

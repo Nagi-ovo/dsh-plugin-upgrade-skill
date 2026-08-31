@@ -1,6 +1,6 @@
 # Example 06: Real-World Batch Migration of Six Plugins (0.1.1-rc.1 → 0.1.2-alpha.1)
 
-**English** | [简体中文](06-real-world-batch-migration.md)
+English | [简体中文](06-real-world-batch-migration.md)
 
 **Scenario**: Six published Web UI plugins (pixel pet / progress bar / input history / minigame collection / paste input / file tracing) batch-migrated from `dsh-v0.1.1-rc.1` to `dsh-v0.1.2-alpha.1`. All three typical shapes are covered: the snapshot-reading + slot-registering heavy type, the self-contained-DOM zero-cost type, and the declaration-cleanup-only minimal type.
 
@@ -12,7 +12,7 @@
 
 **Sources**: Community migration practice (migration completed 2026-08-28, verified by real boot + unit-test regression) — [deepseek-harness discussion #5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120#discussioncomment-18208001); the six plugin repositories are listed at the bottom.
 
-> **Corridor coverage note**: the existing corridor cards cover `dsh-v0.1.1-rc.2 → dsh-v0.1.2-alpha.1` (see the from/to in [v0.1.2-alpha.1.md](../references/v0.1.2-alpha.1.md)), while this example starts from `0.1.1-rc.1` — the rc.1 → rc.2 segment has no cards yet. The technical claims in this example (client-runtime removal, `ctx.slots.inject`, `views.get('chat')?.legacy`, etc.) are first-hand sources for that segment, pending cards; the closest existing card is **DSH-0.1.2-A1-03 · 会话视图工程大幅拆分 (session-view engineering split)**.
+> Corridor coverage note: the existing corridor cards cover `dsh-v0.1.1-rc.2 → dsh-v0.1.2-alpha.1` (see the from/to in [v0.1.2-alpha.1.md](../references/v0.1.2-alpha.1.md)), while this example starts from `0.1.1-rc.1` — the rc.1 → rc.2 segment has no cards yet. The technical claims in this example (client-runtime removal, `ctx.slots.inject`, `views.get('chat')?.legacy`, etc.) are first-hand sources for that segment, pending cards; the closest existing card is DSH-0.1.2-A1-03 · 会话视图工程大幅拆分 (session-view engineering split).
 
 ---
 
@@ -23,8 +23,8 @@
 | dsh-ui-whale v0.3.4→v0.3.5 | snapshot + slot | medium | 8 files +141/−99: type imports, `legacy` projection, slot registration |
 | dsh-ui-progress v0.9.3→v0.9.4 | snapshot + slot | medium | same as above + turn-end detection moved to the new timeline |
 | dsh-input-history v0.1.3→v0.1.4 | snapshot | medium | snapshot fields moved to `legacy` |
-| dsh-minigames v0.3.5→v0.3.7 | self-contained body portal | **≈0** | just re-ran 203 unit tests + live verification |
-| dsh-paste-input v0.1.5→v0.1.6 | vanilla lib (no src/) | **small** | removed the deleted `dsh-client-runtime` declaration from `dsh.client.inject` |
+| dsh-minigames v0.3.5→v0.3.7 | self-contained body portal | ≈0 | just re-ran 203 unit tests + live verification |
+| dsh-paste-input v0.1.5→v0.1.6 | vanilla lib (no src/) | small | removed the deleted `dsh-client-runtime` declaration from `dsh.client.inject` |
 | dsh-file-trace | written directly on 0.1.2 | — | usable as a positive sample of the 0.1.2 APIs |
 
 **Classify your plugin before starting**: self-contained DOM plugins cost nearly nothing — don't put yourself through the heavy-type workflow.
@@ -113,10 +113,10 @@ const { nodes, partial, runningCalls } = chat?.legacy ?? EMPTY_PROJECTION
 
 1. **Environment**: 0.1.2-alpha.1 is not on npm (latest is 0.1.1-rc.2) — check out the source, `pnpm install && pnpm run build`; point the `~/.dsh/source/current` junction at the checkout and link plugin devDeps through it. Back up `~/.dsh` before touching anything.
 2. **Replace type imports globally**: `dsh-client-runtime/client` → `@deepseek-ai/cordis`; delete the old declaration from `dsh.client.inject` and devDependencies (a leftover fails boot with a missing-service error).
-3. **Snapshot reads via views**: all old flat fields read through `views.get('chat')?.legacy` — **move everything to legacy first so it runs**, then migrate field by field to views/timeline once stable.
+3. **Snapshot reads via views**: all old flat fields read through `views.get('chat')?.legacy` — move everything to legacy first so it runs, then migrate field by field to views/timeline once stable.
 4. **Lifecycle split**: `running` and friends go through the `useSession` seat; component props combine `useSession` + `useConversation`.
-5. **Slot registration becomes `ctx.slots.inject(name, () => ctx.slots.register(...))`**; pull in `@deepseek-ai/dsh-client-ui-renderer/client` for the `ctx.slots` types.
-6. **`pnpm run clean && pnpm run build && pnpm run typecheck && pnpm run test`** — the clean is mandatory, see pitfall 1.
+5. Slot registration becomes `ctx.slots.inject(name, () => ctx.slots.register(...))`; pull in `@deepseek-ai/dsh-client-ui-renderer/client` for the `ctx.slots` types.
+6. `pnpm run clean && pnpm run build && pnpm run typecheck && pnpm run test` — the clean is mandatory, see pitfall 1.
 7. **Live verification**: `dsh --profile web` + browser hard refresh; restart dsh if the host half changed (client half only needs a hard refresh). Then declare the compatibility matrix in the README (keep old rows, annotated per DSH version) and cut a new tag.
 
 ---
@@ -173,7 +173,7 @@ Verification records from this migration: all six plugins passed same-day live b
 
 ### Error 6: code changes don't show after a refresh, or the host behaves like the old version
 
-**Cause**: the client half takes effect on a hard refresh, **the host half requires a dsh restart**.
+**Cause**: the client half takes effect on a hard refresh, the host half requires a dsh restart.
 
 **Fix**: check where the change landed: into `lib/index.js` (host) → restart; only `lib/client.js` → hard refresh.
 
