@@ -111,6 +111,7 @@
 | [references/v0.1.2-alpha.1.md](references/v0.1.2-alpha.1.md) | rc.2→alpha.1 curated 卡 |
 | [references/v0.1.2-alpha.2.md](references/v0.1.2-alpha.2.md) | alpha.1→alpha.2 curated 卡 |
 | [references/rollup-0.1.2.md](references/rollup-0.1.2.md) | 0.1.1 → 0.1.2 走廊（rollup）：跨 cohort 共存、未发布 cohort 安装、`RemoteResult` 错误流、迁移前 baseline 归因、boot race 有界重试、base-only preset 前置、类型面导出漂移、分层验证清单；**基于 alpha.2，正式版需复核** |
+| [references/host-plane-probes.md](references/host-plane-probes.md) | 宿主平面在 `cordis.patch.yml` 里做双 cohort 探测的三种写法与两条纪律 |
 | [migration planner](../../docs/migration-planner.md) | 只读扫描目标仓库、连接卡片走廊并输出候选迁移计划 |
 | [examples/legacy-plugin/](examples/legacy-plugin/) | 七类触点静态夹具（不得执行） |
 

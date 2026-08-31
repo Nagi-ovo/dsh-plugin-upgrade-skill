@@ -82,6 +82,8 @@ return result.value
 
   manifest 里 range 写 `^0.1.2-alpha.2`，将来正式发布删掉 overrides 段即回到 registry 解析。
 - **注意（待确认）**: 以下 pnpm 版本钉点来自**单一实战报告，尚未在其他仓库复现验证**——报告称 `11.9.0` 对 file: tarball 的传递依赖在有第三方 peer 时会绕过 overrides 去 registry 找不存在的版本，钉 `packageManager: pnpm@11.24.0` 才解析正确。落地前先在目标仓库做最小复现确认，验证通过后回填结果并把本条目转正（与本文件末尾「待确认」小节同步更新）。
+- **npm 实况**（2026-08-31）: `@deepseek-ai/dsh-*` 各包在 npm 只有 `0.1.1-rc.1`、`0.1.1-rc.2`、`0.1.2-alpha.2`，alpha.1 从未发布。rc.2 → alpha.1 只能从 GitHub tag 构建；目标 alpha.2 先查 registry。
+- **只验证不安装**（[dsh-TUI #622](https://github.com/ccch1mneyyy/dsh-TUI/pull/622)）: 安装基线留 rc.2，CI 检出上游 tag，用其 `tsconfig.base.json` 的 `paths` 映射到源码跑 `tsc --noEmit`。证明类型面，运行时另做；[dsh-TUI #647](https://github.com/ccch1mneyyy/dsh-TUI/pull/647) 在 alpha.2 上 npm 后仍保留这条车道。
 - **验证**: `pnpm list --depth 0 | grep @deepseek-ai` 全部指向目标版本，无混合。
 - **来源**: [#5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120) 第 1 条。**未在官方 release notes 覆盖范围内**，属社区实践。
 
@@ -111,6 +113,7 @@ return result.value
   const roster = presets ?? ctx.connection.api.agentPresets
   ```
 
+- **宿主平面（Cordis 组合）的等价写法**: 产物不动，cohort 差异放进 `cordis.patch.yml` 的 `!!js` 探测——子路径 resolve、读 preset 文件、探测包目录三种形态和两条纪律见 [host-plane-probes.md](host-plane-probes.md)（[dsh-TUI #622](https://github.com/ccch1mneyyy/dsh-TUI/pull/622)）。
 - **被否决的替代**: per-consumer try/catch 重复污染源码；按宿主 cohort 出不同产物（重新引入有状态构建）；硬等 inject wait（旧宿主永久 pending）。
 - **验证**: 同一份产物分别 link 到旧宿主与新宿主，各跑一次冷启动 + 完整一轮对话。
 - **来源**: [#5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120) 第 3、4 条。
