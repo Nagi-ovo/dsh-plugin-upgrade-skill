@@ -8,7 +8,7 @@
 
 0. 迁移动手前，先按 R-06 采集 baseline（即分层验证清单第 0 层）；
 1. 先按 [pre-flight.md](pre-flight.md) 测出命中的触点类；
-2. 按 `from → to` 读完整走廊并先计算净状态：[v0.1.2-alpha.1.md](v0.1.2-alpha.1.md)（15 张）→ [v0.1.2-alpha.2.md](v0.1.2-alpha.2.md)（7 张）；
+2. 按 `from → to` 读完整走廊并先计算净状态：[v0.1.2-alpha.1.md](v0.1.2-alpha.1.md) → [v0.1.2-alpha.2.md](v0.1.2-alpha.2.md)（各文件张数见 [README.md](README.md) 索引）；
 3. 回到本文件处理走廊层问题——这些跨越单版本，卡片里没有；
 4. 按本文件末尾的分层验证清单收工。
 
@@ -34,8 +34,8 @@
 ## Remote 调用的错误流
 
 承接 [DSH-0.1.2-A1-01](v0.1.2-alpha.1.md) 与
-[DSH-0.1.2-A2-02](v0.1.2-alpha.2.md)。alpha.2 的 unary Remote 返回
-`Promise<RemoteResult<T>>`：业务/载体失败走 `ok: false`；参数个数、未挂载方法、缺少
+[DSH-0.1.2-A2-02](v0.1.2-alpha.2.md)。unary Remote 从 rc.2 起就返回
+`Promise<RemoteResult<T>>`，alpha.2 改的是 `error` 的类型和错误码命名空间：业务/载体失败走 `ok: false`；参数个数、未挂载方法、缺少
 Context adapter 等装配/编程错误仍可能 reject，应暴露修复而不是吞掉重试。
 
 ```typescript
@@ -139,6 +139,7 @@ return result.value
 - **类型**: process
 - **症状**: 依赖被删 SDK 包才能构建的插件（承接 [DSH-0.1.2-A1-01](v0.1.2-alpha.1.md)），迁移中途才发现无法构建，只能随迁移退役。
 - **配方**: 迁移前先对全部插件跑一次「import 了哪些被删包」的盘点，把「必须退役」与「可迁移」分开排期，而不是边迁边发现。
+- **被删包清单**（按各 tag `packages/*/*/package.json` 的 `name` 比对，2026-08-31）: rc.2 → alpha.1 删除 5 个：`@deepseek-ai/dsh-acp-demo`、`dsh-acp-snapshot`、`dsh-client-runtime`、`dsh-host-apiproxy`、`dsh-sdk-jsonrpc-demo`；新增 25 个。alpha.1 → alpha.2 无删除，新增 `dsh-client-ui-schedule`、`dsh-deque`、`dsh-util-time`、`dsh-util-values`。盘点先 grep 这 5 个名字。
 - **验证**: 盘点清单与实际迁移结果一致，无中途新增退役项。
 - **来源**: [#5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120) 第 10 条。
 
