@@ -18,13 +18,13 @@
 |---|---|
 | #1 源码 patch | [DSH-0.1.2-A1-03](v0.1.2-alpha.1.md) |
 | #2 事件 / 持久事件 | [DSH-0.1.2-A1-02](v0.1.2-alpha.1.md) → [DSH-0.1.2-A2-01](v0.1.2-alpha.2.md)，另见 [DSH-0.1.2-A1-06](v0.1.2-alpha.1.md) |
-| #3 服务 / Remote | [DSH-0.1.2-A1-01](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-06](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-11](v0.1.2-alpha.1.md)、[DSH-0.1.2-A2-02](v0.1.2-alpha.2.md)、[DSH-0.1.2-A2-05](v0.1.2-alpha.2.md)、[DSH-0.1.2-A2-06](v0.1.2-alpha.2.md)、[DSH-0.1.2-A2-07](v0.1.2-alpha.2.md) |
-| #4 宿主目录读写 | [DSH-0.1.2-A1-04](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-13](v0.1.2-alpha.1.md) |
+| #3 服务 / Remote | [DSH-0.1.2-A1-01](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-06](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-11](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-20](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-21](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-22](v0.1.2-alpha.1.md)、[DSH-0.1.2-A2-02](v0.1.2-alpha.2.md)、[DSH-0.1.2-A2-05](v0.1.2-alpha.2.md)、[DSH-0.1.2-A2-06](v0.1.2-alpha.2.md)、[DSH-0.1.2-A2-08](v0.1.2-alpha.2.md) |
+| #4 宿主目录读写 | [DSH-0.1.2-A1-04](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-13](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-21](v0.1.2-alpha.1.md) |
 | #5 UI / 命令 / 工具 | [DSH-0.1.2-A1-03](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-06](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-09](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-10](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-11](v0.1.2-alpha.1.md) |
 | #6 自建 HTTP/WS/RPC/DOM/CSS | [DSH-0.1.2-A1-08](v0.1.2-alpha.1.md) |
 | #7 子进程 / stdout / stderr | [DSH-0.1.2-A1-04](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-05](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-06](v0.1.2-alpha.1.md)、[DSH-0.1.2-A1-13](v0.1.2-alpha.1.md)、[DSH-0.1.2-A2-04](v0.1.2-alpha.2.md) |
 | #6/#7 Web 启动与验收 | [DSH-0.1.2-A1-19](v0.1.2-alpha.1.md)（认证 URL、启动图资源发现与真实挂载） |
-| 特殊面 | 权限 [DSH-0.1.2-A1-07](v0.1.2-alpha.1.md)；隐私 [DSH-0.1.2-A1-12](v0.1.2-alpha.1.md) / [DSH-0.1.2-A1-14](v0.1.2-alpha.1.md)；打包 [DSH-0.1.2-A2-03](v0.1.2-alpha.2.md) |
+| 特殊面 | 权限 [DSH-0.1.2-A1-07](v0.1.2-alpha.1.md)；隐私 [DSH-0.1.2-A1-12](v0.1.2-alpha.1.md) / [DSH-0.1.2-A1-14](v0.1.2-alpha.1.md) / [DSH-0.1.2-A1-23](v0.1.2-alpha.1.md)；打包 [DSH-0.1.2-A1-24](v0.1.2-alpha.1.md) / [DSH-0.1.2-A2-03](v0.1.2-alpha.2.md) |
 
 > **跨版本回滚型变更先读完整走廊再动手**：字段或语义在中间版本删除、后续版本又恢复
 > （典型如 `ignorable` 的 [DSH-0.1.2-A1-02](v0.1.2-alpha.1.md) → [DSH-0.1.2-A2-01](v0.1.2-alpha.2.md) 一删一复）。
@@ -82,6 +82,8 @@ return result.value
 
   manifest 里 range 写 `^0.1.2-alpha.2`，将来正式发布删掉 overrides 段即回到 registry 解析。
 - **注意（待确认）**: 以下 pnpm 版本钉点来自**单一实战报告，尚未在其他仓库复现验证**——报告称 `11.9.0` 对 file: tarball 的传递依赖在有第三方 peer 时会绕过 overrides 去 registry 找不存在的版本，钉 `packageManager: pnpm@11.24.0` 才解析正确。落地前先在目标仓库做最小复现确认，验证通过后回填结果并把本条目转正（与本文件末尾「待确认」小节同步更新）。
+- **npm 实况**（2026-08-31）: `@deepseek-ai/dsh-*` 各包在 npm 只有 `0.1.1-rc.1`、`0.1.1-rc.2`、`0.1.2-alpha.2`，alpha.1 从未发布。rc.2 → alpha.1 只能从 GitHub tag 构建；目标 alpha.2 先查 registry。
+- **只验证不安装**（[dsh-TUI #622](https://github.com/ccch1mneyyy/dsh-TUI/pull/622)）: 安装基线留 rc.2，CI 检出上游 tag，用其 `tsconfig.base.json` 的 `paths` 映射到源码跑 `tsc --noEmit`。证明类型面，运行时另做；[dsh-TUI #647](https://github.com/ccch1mneyyy/dsh-TUI/pull/647) 在 alpha.2 上 npm 后仍保留这条车道。
 - **验证**: `pnpm list --depth 0 | grep @deepseek-ai` 全部指向目标版本，无混合。
 - **来源**: [#5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120) 第 1 条。**未在官方 release notes 覆盖范围内**，属社区实践。
 
@@ -111,6 +113,7 @@ return result.value
   const roster = presets ?? ctx.connection.api.agentPresets
   ```
 
+- **宿主平面（Cordis 组合）的等价写法**: 产物不动，cohort 差异放进 `cordis.patch.yml` 的 `!!js` 探测——子路径 resolve、读 preset 文件、探测包目录三种形态和两条纪律见 [host-plane-probes.md](host-plane-probes.md)（[dsh-TUI #622](https://github.com/ccch1mneyyy/dsh-TUI/pull/622)）。
 - **被否决的替代**: per-consumer try/catch 重复污染源码；按宿主 cohort 出不同产物（重新引入有状态构建）；硬等 inject wait（旧宿主永久 pending）。
 - **验证**: 同一份产物分别 link 到旧宿主与新宿主，各跑一次冷启动 + 完整一轮对话。
 - **来源**: [#5120](https://github.com/deepseek-ai/deepseek-harness/discussions/5120) 第 3、4 条。
@@ -217,17 +220,23 @@ return result.value
 
 - **类型**: breaking（typecheck 面）
 - **症状**: rc.2 可直接导入的多个类型/函数在 alpha.2 移包或移出公开面，typecheck 批量 TS2305/TS2614；运行时不一定同步崩，属于「静态漂移」。
-- **配方**（ledger，2026-08-30 按 npm tarball 导出比对）:
+- **配方**（ledger，2026-08-30 按 npm tarball 导出比对；2026-08-31 按三个 tag 源码补齐，每行标了发生在哪条边）:
 
   | 旧 | 新 |
   |---|---|
-  | `CallId` from `@deepseek-ai/dsh-llm` | `ToolCallId`（同包根导出，branded） |
-  | `JsonValue` from `@deepseek-ai/dsh-session` | `@deepseek-ai/dsh-util-values`（补直接依赖，见 [DSH-0.1.2-A2-03](v0.1.2-alpha.2.md)） |
-  | `collectSessionTitleMessages` from `@deepseek-ai/dsh-session-title` | 移出公开面——按 rc.2 同语义本地折叠（首条 `source.kind === 'user'` 的 `user/message` 文本）或走 `foldSessionTitle` |
-  | `'todo/write'` 的 `SessionEventMap` 类型声明 | 只在 `@deepseek-ai/dsh-tool-todo` 内合并；不依赖该包时本地按官方 `TodoItem` 结构补 `declare module '@deepseek-ai/dsh-session/types'`（runtime 事件词汇未变，`known-event-types` 仍收录） |
+  | `CallId` from `@deepseek-ai/dsh-llm`（rc.2 → alpha.1，`src/brand.ts:31`） | `ToolCallId`（同包根导出，branded） |
+  | `JsonValue`、`isJsonValue`、`snapshotJsonValue` from `@deepseek-ai/dsh-session`，以及 `dsh-tools` 对 `JsonValue` 的再导出（alpha.1 → alpha.2） | 新包 `@deepseek-ai/dsh-util-values`（补直接依赖，见 [DSH-0.1.2-A2-03](v0.1.2-alpha.2.md)） |
+  | `deepFreeze`、`assertNever` from `@deepseek-ai/dsh-llm`（alpha.1 → alpha.2） | `@deepseek-ai/dsh-util-values` |
+  | `collectSessionTitleMessages` from `@deepseek-ai/dsh-session-title`（alpha.1 → alpha.2，`src/index.ts:167` 转私有） | 移出公开面——按 rc.2 同语义本地折叠（首条 `source.kind === 'user'` 的 `user/message` 文本）或走 `foldSessionTitle` |
+  | `'todo/write'` 的 `SessionEventMap` 类型声明（rc.2 → alpha.1；rc.2 在 `core/session/src/invariant.ts:150` 直接 switch） | 只在 `@deepseek-ai/dsh-tool-todo` 内合并；不依赖该包时本地按官方 `TodoItem` 结构补 `declare module '@deepseek-ai/dsh-session/types'`（runtime 事件词汇未变，`known-event-types` 仍收录） |
+  | `settingsNamespace()`、`installSettingsSection()`、`deepEqualJson()` from `@deepseek-ai/dsh-settings`（alpha.1 → alpha.2） | 全部删除。命名空间改普通字符串字面量，`SettingsProvider.register<const Namespace extends string, T>(ns: Namespace & SettingsNamespaceInput<Namespace>, …)` 编译期校验（`src/index.ts:419`）；`installSettingsSection` → `SettingsProvider.installSection(owner, ns, schema, entry, hooks)`；`deepEqualJson` → `dsh-util-values`。要一份源码同时编译过 alpha.1 和 alpha.2，把常量写成 `'my-ns' as SettingsNamespace`——brand 只在类型层，运行时值相同 |
+  | `InvalidPresetIdError`、`PresetExistsError`、`PresetNotWritableError`、`PresetLockedError`、`PresetMountError`、`UnknownPresetError`、`AgentPresetError`、`AgentPresetErrorDetailsMap` from `@deepseek-ai/dsh-agent-presets`（alpha.1 → alpha.2） | 删除，改 `RemoteError<'agent-preset/not-found' \| 'agent-preset/invalid' \| 'agent-preset/read-only' \| 'agent-preset/locked'>`（`src/types.ts:37-43`）；`instanceof XxxError` 改按 `code` 分支，见 [DSH-0.1.2-A2-02](v0.1.2-alpha.2.md) |
+  | `LlmModelDiscoveryError` from `@deepseek-ai/dsh-llm`（code `model-discovery-failed`；alpha.1 → alpha.2） | `RemoteError<'llm/model-discovery-rejected'>`（`src/types.ts:261`） |
+  | `FIRST_PARTY_SECTION_ORDER`、`PERSONA_ORDER` from `@deepseek-ai/dsh-system-prompt`（alpha.1 → alpha.2） | 删除，改 `systemPrompt.getSectionOrder(name)` / `getContextOrder(name)`（参数类型 `PromptSectionOrderName` / `PromptContextOrderName`） |
+  | `TypertRemoteFailure`、`TypertLookupFailure` from `@deepseek-ai/dsh-typert-protocol`；`RemoteStreamError` from `@deepseek-ai/dsh-api-gateway/client`；`RpcErrorDetailsMap`、`RpcErrorCode`、`RpcError` from `@deepseek-ai/dsh-client-connection`（alpha.1 → alpha.2） | 删除，统一 `RemoteError`，见 [DSH-0.1.2-A2-02](v0.1.2-alpha.2.md) |
 
 - **验证**: typecheck 全绿且不靠 `@ts-ignore`；本地合并的声明与官方结构逐字段一致；运行时事件流与 rc.2 相同。
-- **来源**: 各包 `0.1.2-alpha.2` tarball 导出比对 + [alpha.2 todo 工具 types.ts](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.2-alpha.2/packages/todo/tool-todo/src/types.ts) · dsh-tui 实测（2026-08-30）
+- **来源**: 各包 `0.1.2-alpha.2` tarball 导出比对 + [alpha.2 todo 工具 types.ts](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.2-alpha.2/packages/todo/tool-todo/src/types.ts) · [alpha.2 `dsh-util-values`](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.2-alpha.2/packages/util/values/src/index.ts) · [alpha.2 settings `register` 签名](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.2-alpha.2/packages/settings/settings/src/index.ts) · [alpha.2 agent-presets 错误码](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.2-alpha.2/packages/preset/agent-presets/src/types.ts) · [alpha.2 system-prompt](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.2-alpha.2/packages/core/system-prompt/src/index.ts) · [alpha.2 llm types](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.2-alpha.2/packages/llm/llm/src/types.ts) · [rc.2 `CallId`](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.1-rc.2/packages/llm/llm/src/brand.ts) · dsh-tui 实测（2026-08-30）· [dsh-TUI #647](https://github.com/ccch1mneyyy/dsh-TUI/pull/647)（`settingsNamespace` 是 alpha.1 → alpha.2 唯一的编译中断）
 
 ## 分层验证清单
 
