@@ -4,11 +4,14 @@ import { readFile, readdir, stat } from 'node:fs/promises'
 import { basename, dirname, extname, join, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const referencesRoot = join(repoRoot, 'skills', 'plugin-upgrade', 'references')
+// This script lives inside the skill so installers that copy only skills/<name>/ still ship it.
+const skillRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const referencesRoot = join(skillRoot, 'references')
 const ignoredDirectories = new Set(['.git', 'node_modules', 'vendor', 'lib', 'dist', 'build', 'coverage'])
 const sensitiveNames = new Set(['.env', '.npmrc', '.yarnrc', '.pypirc', 'credentials.json'])
-const allowedExtensions = new Set(['.cjs', '.js', '.jsx', '.json', '.md', '.mjs', '.toml', '.ts', '.tsx', '.yaml', '.yml'])
+// Markdown is deliberately not scanned: prose about a touchpoint is not a touchpoint.
+const allowedExtensions = new Set(['.cjs', '.js', '.jsx', '.json', '.mjs', '.toml', '.ts', '.tsx', '.yaml', '.yml'])
+const codeExtensions = new Set(['.cjs', '.js', '.jsx', '.mjs', '.ts', '.tsx'])
 const alwaysReadNames = new Set(['Dockerfile', 'Makefile', 'pnpm-lock.yaml', 'package-lock.json', 'yarn.lock', 'bun.lock', 'bun.lockb'])
 const maxFileBytes = 1024 * 1024
 
@@ -83,25 +86,29 @@ export async function scanRepository(targetRoot, { maxHits = 20, manualTouchpoin
 
   const manual = new Set(manualTouchpoints)
   const touchpoints = []
+  // Rank src/ code first, other code next, config last, so a small --max-hits window
+  // is not filled by whichever directory sorts first alphabetically.
+  const rank = (file) => (codeExtensions.has(extname(file)) ? (/(^|\/)src\//.test(file) ? 0 : 1) : 2)
   for (const entry of patternData.classes) {
-    const hits = []
+    const found = []
     for (const file of files) {
       const text = texts.get(file)
       for (let patternIndex = 0; patternIndex < entry.patterns.length; patternIndex += 1) {
         const line = matchingLine(text, entry.patterns[patternIndex])
         if (line === undefined) continue
-        hits.push({ file: relativePath(root, file), line, pattern: patternIndex + 1 })
+        found.push({ file: relativePath(root, file), line, pattern: patternIndex + 1 })
         break
       }
-      if (hits.length >= maxHits) break
     }
+    found.sort((a, b) => rank(a.file) - rank(b.file) || a.file.localeCompare(b.file))
     touchpoints.push({
       id: entry.id,
       slug: entry.slug,
       name: entry.name,
-      detected: hits.length > 0,
+      detected: found.length > 0,
       manual: manual.has(entry.id),
-      hits,
+      totalHits: found.length,
+      hits: found.slice(0, maxHits),
     })
   }
 
@@ -202,15 +209,16 @@ export function renderMarkdown(plan) {
     `- Target: \`${plan.scan.root}\``,
     `- Scanned files: ${plan.scan.scannedFiles}`,
     '- This is a heuristic plan, not compatibility proof. No target file was modified.',
+    '- Scanned code and config files only (no Markdown); hits list src/ code first, other code next, config last.',
     '',
     '## Touchpoints',
     '',
-    '| ID | Name | Source | Hits |',
+    '| ID | Name | Source | Hits (shown/total) |',
     '|---:|---|---|---:|',
   ]
   for (const entry of plan.scan.touchpoints) {
     const source = [entry.detected ? 'detected' : undefined, entry.manual ? 'manual' : undefined].filter(Boolean).join('+') || 'none'
-    lines.push(`| #${entry.id} | ${entry.name} | ${source} | ${entry.hits.length} |`)
+    lines.push(`| #${entry.id} | ${entry.name} | ${source} | ${entry.hits.length}/${entry.totalHits ?? entry.hits.length} |`)
   }
   lines.push('', '## Hit locations', '')
   const hits = plan.scan.touchpoints.flatMap((entry) => entry.hits.map((hit) => ({ id: entry.id, ...hit })))
@@ -233,7 +241,7 @@ export function renderMarkdown(plan) {
 }
 
 function usage() {
-  return `Usage: node scripts/plan-migration.mjs --root <plugin-repo> --from <exact-tag> --to <exact-tag> [--touchpoints 1,3] [--format markdown|json] [--max-hits N]\n\nThe command is read-only and never accepts an output/write option.\n`
+  return `Usage: node skills/plugin-upgrade/scripts/plan-migration.mjs --root <plugin-repo> --from <exact-tag> --to <exact-tag> [--touchpoints 1,3] [--format markdown|json] [--max-hits N]\n\nThe command is read-only and never accepts an output/write option.\n`
 }
 
 function parseArgs(argv) {

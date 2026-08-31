@@ -41,7 +41,7 @@ const dispose = connection.rpc.handle(
 ```
 
 - 只对**签名漂移且运行时忽略多余参数**的 API 用此折中；语义变化的 API 必须按
-  [plugin-upgrade](../../plugin-upgrade/SKILL.md) 的版本卡片迁移，不做静默折中；
+  [plugin-upgrade](https://github.com/oh-my-dsh/dsh-plugin-upgrade-skill/blob/main/skills/plugin-upgrade/SKILL.md) 的版本卡片迁移，不做静默折中；
 - 类型导入（`import type`）编译期擦除，跨 cohort 无运行时负担；
 - 不要把本机 junction/file: 绝对路径写进提交的 manifest。
 

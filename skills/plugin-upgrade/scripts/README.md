@@ -2,10 +2,12 @@
 
 `plan-migration.mjs` turns the existing pre-flight patterns and version-card metadata into a deterministic first-pass plan. It **never writes the target repository** and has no output-file option.
 
+It lives inside `skills/plugin-upgrade/` so that installers that copy only the skill directory (`npx skills add`, `gemini skills install --path skills`, Cursor) ship it together with the cards it reads.
+
 ## Usage
 
 ```sh
-node scripts/plan-migration.mjs \
+node skills/plugin-upgrade/scripts/plan-migration.mjs \
   --root /path/to/plugin \
   --from dsh-v0.1.1-rc.2 \
   --to dsh-v0.1.2-alpha.2
@@ -14,7 +16,7 @@ node scripts/plan-migration.mjs \
 JSON for another tool:
 
 ```sh
-node scripts/plan-migration.mjs \
+node skills/plugin-upgrade/scripts/plan-migration.mjs \
   --root /path/to/plugin \
   --from dsh-v0.1.1-rc.2 \
   --to dsh-v0.1.2-alpha.2 \
@@ -24,13 +26,14 @@ node scripts/plan-migration.mjs \
 Known touchpoints can be added without suppressing detected ones:
 
 ```sh
-node scripts/plan-migration.mjs ... --touchpoints 1,5
+node skills/plugin-upgrade/scripts/plan-migration.mjs ... --touchpoints 1,5
 ```
 
 ## What it does
 
 1. reads `pre-flight-patterns.json`;
-2. scans text/config files while skipping `.git`, dependencies, generated output, sensitive filenames and files larger than 1 MiB;
+2. scans code and config files (`.ts .tsx .js .jsx .mjs .cjs .json .yml .yaml .toml`, plus lockfiles/Dockerfile/Makefile) while skipping Markdown, `.git`, dependencies, generated output, sensitive filenames and files larger than 1 MiB;
+   hits are ranked `src/` code first, other code next, config last, then capped at `--max-hits` (default 20); the touchpoint table reports shown/total;
 3. reports path, line number and pattern number only—never the matching source line;
 4. resolves an exact `from → to` path through card-set frontmatter;
 5. selects cards intersecting detected/manual touchpoints;
@@ -58,7 +61,7 @@ This is an intentionally conservative heuristic:
 Run the regression guard with:
 
 ```sh
-node scripts/plan-migration.check.mjs
+node skills/plugin-upgrade/scripts/plan-migration.check.mjs
 ```
 
 The guard proves read-only behavior with a before/after hash snapshot, checks #3/#6/#7 detection, resolves the rc.2→alpha.2 corridor, validates card selection/redaction, and verifies unsupported-gap handling.

@@ -64,7 +64,7 @@
 2. 先读完整走廊并计算最终净状态。字段在中间版本删除、目标版又恢复时，不先删再加。
 3. 按 [pre-flight.md](references/pre-flight.md) 扫描七类触点：源码 patch、事件、服务/
    Remote、宿主文件系统、UI/命令/工具、自建通道、子进程/输出。可先运行只读
-   [migration planner](../../docs/migration-planner.md) 生成路径/行号与候选卡，但结果仍是
+   [migration planner](scripts/README.md) 生成路径/行号与候选卡，但结果仍是
    启发式；零命中仍须检查依赖/导入并跑 build 与真实挂载。
 4. 只保留与命中触点和实际 face（Host/Web Client/普通 plugin）相交的卡片。卡片是 curated
    清单，不是完整 API diff；缺走廊边或 API 坐标时标 unsupported/待确认，不凭记忆改。
@@ -111,7 +111,7 @@
 | [references/v0.1.2-alpha.1.md](references/v0.1.2-alpha.1.md) | rc.2→alpha.1 curated 卡 |
 | [references/v0.1.2-alpha.2.md](references/v0.1.2-alpha.2.md) | alpha.1→alpha.2 curated 卡 |
 | [references/rollup-0.1.2.md](references/rollup-0.1.2.md) | 0.1.1 → 0.1.2 走廊（rollup）：跨 cohort 共存、未发布 cohort 安装、`RemoteResult` 错误流、迁移前 baseline 归因、boot race 有界重试、base-only preset 前置、类型面导出漂移、分层验证清单；**基于 alpha.2，正式版需复核** |
-| [migration planner](../../docs/migration-planner.md) | 只读扫描目标仓库、连接卡片走廊并输出候选迁移计划 |
+| [scripts/README.md](scripts/README.md) | 只读 migration planner：扫描目标仓库、连接卡片走廊并输出候选迁移计划 |
 | [examples/legacy-plugin/](examples/legacy-plugin/) | 七类触点静态夹具（不得执行） |
 
 规范背景：[dsh-community-standard](https://github.com/oh-my-dsh/dsh-community-standard)

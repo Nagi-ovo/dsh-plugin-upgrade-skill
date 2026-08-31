@@ -17,7 +17,7 @@
 
 ### Using the skills CLI (recommended)
 
-The fastest path — installed by the [skills CLI](https://github.com/justjavac/skills) into the agents it currently supports:
+The fastest path — installed by the [skills CLI](https://github.com/vercel-labs/skills) into the agents it currently supports:
 
 ```bash
 npx skills add oh-my-dsh/dsh-plugin-upgrade-skill
